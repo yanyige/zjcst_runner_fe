@@ -1,0 +1,46 @@
+<view class="run-page">
+  <view class="section stats">
+    <view class="stat-item">
+      <view class="label">总距离 (公里)</view>
+      <view class="value">{{distanceText}}</view>
+    </view>
+    <view class="stat-item">
+      <view class="label">用时</view>
+      <view class="value">{{formattedTime}}</view>
+    </view>
+    <view class="stat-item">
+      <view class="label">平均配速</view>
+      <view class="value">{{pace}}</view>
+    </view>
+  </view>
+
+  <view class="section control">
+    <block wx:if="{{!isRunning}}">
+      <button class="primary-btn" bindtap="startRun">开始跑步</button>
+    </block>
+    <block wx:elif="{{paused}}">
+      <button class="primary-btn" bindtap="resumeRun">继续</button>
+      <button class="stop-btn" bindtap="stopRun">结束</button>
+    </block>
+    <block wx:else>
+      <button class="pause-btn" bindtap="pauseRun">暂停</button>
+      <button class="stop-btn" bindtap="stopRun">结束</button>
+    </block>
+  </view>
+
+  <view class="section route" wx:if="{{path.length}}">
+    <view class="section-title">实时轨迹</view>
+    <scroll-view class="route-list" scroll-y>
+      <block wx:for="{{path}}" wx:key="timestamp">
+        <view class="route-item">
+          <view>纬度：{{item.displayLat}} 经度：{{item.displayLng}}</view>
+          <view class="text-muted">速度：{{item.speed || 0}} m/s</view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{allowUpload}}" class="tips">
+    已满足 {{minValidDistance}} 公里有效打卡要求
+  </view>
+</view>

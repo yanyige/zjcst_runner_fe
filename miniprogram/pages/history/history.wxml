@@ -1,0 +1,40 @@
+<view class="history-page">
+  <view class="section summary">
+    <view class="summary-item">
+      <view class="label">本周累计</view>
+      <view class="value">{{weeklyDistance}} km</view>
+    </view>
+    <view class="summary-item">
+      <view class="label">本月累计</view>
+      <view class="value">{{monthlyDistance}} km</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">历史记录</view>
+    <view wx:if="{{!records.length && !loading}}" class="empty">暂无记录，快去跑步吧！</view>
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <block wx:for="{{records}}" wx:key="id">
+      <view class="record-item" data-record="{{item}}" bindtap="goDetail">
+        <view class="record-header">
+          <view class="date">{{item.date}}</view>
+          <view class="badge" wx:if="{{item.is_valid===0}}">无效</view>
+        </view>
+        <view class="record-body">
+          <view class="metric">
+            <view class="metric-label">距离</view>
+            <view class="metric-value">{{item.distance}} km</view>
+          </view>
+          <view class="metric">
+            <view class="metric-label">时长</view>
+            <view class="metric-value">{{item.durationText}}</view>
+          </view>
+          <view class="metric">
+            <view class="metric-label">配速</view>
+            <view class="metric-value">{{item.paceText}}</view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

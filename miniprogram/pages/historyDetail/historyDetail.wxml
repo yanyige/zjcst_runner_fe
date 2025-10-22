@@ -1,0 +1,38 @@
+<view class="detail-page" wx:if="{{record}}">
+  <view class="section">
+    <view class="section-title">跑步详情</view>
+    <view class="info-row">
+      <text>日期</text>
+      <text>{{record.date}}</text>
+    </view>
+    <view class="info-row">
+      <text>距离</text>
+      <text>{{record.distance}} km</text>
+    </view>
+    <view class="info-row">
+      <text>时长</text>
+      <text>{{record.durationText || record.duration}}</text>
+    </view>
+    <view class="info-row">
+      <text>平均配速</text>
+      <text>{{record.paceText || record.pace}}</text>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{polyline.length}}">
+    <view class="section-title">跑步轨迹</view>
+    <map class="map" longitude="{{center.longitude}}" latitude="{{center.latitude}}" scale="15" polyline="{{polyline}}"></map>
+  </view>
+
+  <view class="section" wx:if="{{!polyline.length}}">
+    <view class="section-title">轨迹数据</view>
+    <scroll-view class="route-list" scroll-y>
+      <block wx:for="{{route}}" wx:key="timestamp">
+        <view class="route-item">
+          <view>{{index + 1}}. 纬度 {{item.latitude}}，经度 {{item.longitude}}</view>
+          <view class="text-muted">速度：{{item.speed || 0}} m/s</view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+</view>
