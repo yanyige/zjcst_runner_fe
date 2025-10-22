@@ -1,0 +1,9 @@
+{
+  "desc": "生成的 sitemap 仅供微信小程序后台校验使用",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

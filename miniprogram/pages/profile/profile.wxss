@@ -1,0 +1,97 @@
+.profile-page {
+  padding-bottom: 80rpx;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #d6e4ff, #91d5ff);
+  color: #1f4b99;
+  font-size: 72rpx;
+  font-weight: 600;
+}
+
+.change-tip {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 22rpx;
+}
+
+.info .name {
+  font-size: 40rpx;
+  font-weight: 600;
+}
+
+.total {
+  text-align: center;
+}
+
+.total .distance {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #1296db;
+}
+
+.badge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.badge-item {
+  padding: 20rpx;
+  border-radius: 12rpx;
+  background: #f8fbff;
+}
+
+.badge-name {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.logout-btn {
+  margin: 48rpx 24rpx;
+  background: #ff7875;
+  color: #fff;
+  border-radius: 50rpx;
+}
+
+.loading-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 32rpx;
+  color: #666;
+}

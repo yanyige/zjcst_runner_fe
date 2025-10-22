@@ -1,0 +1,26 @@
+<view class="rank-page">
+  <view class="section filters">
+    <picker mode="selector" range="{{scopeOptions}}" value="{{scopeOptions.indexOf(currentScope)}}" bindchange="handleScopeChange">
+      <view class="picker-item">范围：{{scopeLabels[currentScope]}}</view>
+    </picker>
+    <picker mode="selector" range="{{periodOptions}}" value="{{periodOptions.indexOf(currentPeriod)}}" bindchange="handlePeriodChange">
+      <view class="picker-item">周期：{{periodLabels[currentPeriod]}}</view>
+    </picker>
+  </view>
+
+  <view class="section">
+    <view class="section-title">{{periodLabels[currentPeriod]}}{{scopeLabels[currentScope]}}排行榜</view>
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <view wx:if="{{!rankings.length && !loading}}" class="empty">暂无排行数据</view>
+    <block wx:for="{{rankings}}" wx:key="id">
+      <view class="rank-item">
+        <view class="rank-index">{{index + 1}}</view>
+        <view class="rank-info">
+          <view class="name">{{item.name || item.label}}</view>
+          <view class="text-muted">累计里程：{{item.distance || item.totalDistance}} km</view>
+        </view>
+        <view class="medal" wx:if="{{index < 3}}">🏅</view>
+      </view>
+    </block>
+  </view>
+</view>

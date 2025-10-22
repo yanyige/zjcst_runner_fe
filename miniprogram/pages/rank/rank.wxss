@@ -1,0 +1,54 @@
+.rank-page {
+  padding-bottom: 60rpx;
+}
+
+.filters {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.picker-item {
+  padding: 24rpx;
+  background: #f4f8ff;
+  border-radius: 12rpx;
+  color: #1296db;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #8a8a8a;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+  padding: 20rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.rank-index {
+  width: 60rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+  text-align: center;
+  color: #1296db;
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-info .name {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.medal {
+  font-size: 32rpx;
+}

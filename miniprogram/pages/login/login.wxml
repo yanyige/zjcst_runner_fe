@@ -1,0 +1,9 @@
+<view class="container">
+  <view class="hero-icon">🏃</view>
+  <view class="title">PopRun 校园跑步</view>
+  <view class="subtitle">{{description}}</view>
+  <button class="login-btn" type="primary" loading="{{loading}}" bindtap="handleLogin">
+    微信登录
+  </button>
+  <view wx:if="{{needBind}}" class="tips">首次登录需要完成校园统一认证</view>
+</view>

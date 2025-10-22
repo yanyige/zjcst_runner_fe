@@ -1,0 +1,18 @@
+{
+  "miniprogramRoot": "miniprogram/",
+  "projectname": "PopRun 校园跑步系统",
+  "description": "校园跑步打卡与统计微信小程序",
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "libVersion": "3.4.1",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "autoAudits": false,
+    "newFeature": true
+  },
+  "condition": {}
+}

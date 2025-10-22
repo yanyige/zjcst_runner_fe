@@ -1,0 +1,71 @@
+.history-page {
+  padding-bottom: 80rpx;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary-item {
+  flex: 1;
+  text-align: center;
+}
+
+.summary-item .label {
+  color: #8a8a8a;
+  font-size: 24rpx;
+}
+
+.summary-item .value {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #1296db;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 48rpx 0;
+  color: #8a8a8a;
+}
+
+.record-item {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: #f8fbff;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.record-header .date {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.record-body {
+  display: flex;
+  justify-content: space-between;
+}
+
+.metric {
+  flex: 1;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 24rpx;
+  color: #8a8a8a;
+}
+
+.metric-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}

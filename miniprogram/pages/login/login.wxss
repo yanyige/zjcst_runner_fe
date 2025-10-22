@@ -1,0 +1,41 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 48rpx;
+  background: linear-gradient(180deg, #f0f9ff, #ffffff);
+}
+
+.hero-icon {
+  font-size: 160rpx;
+  margin-bottom: 48rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1296db;
+}
+
+.subtitle {
+  margin-top: 16rpx;
+  color: #666;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.login-btn {
+  margin-top: 64rpx;
+  width: 100%;
+  border-radius: 50rpx;
+  background: linear-gradient(135deg, #1296db, #57c5f7);
+  box-shadow: 0 12rpx 24rpx rgba(18, 150, 219, 0.2);
+}
+
+.tips {
+  margin-top: 32rpx;
+  font-size: 24rpx;
+  color: #8a8a8a;
+}

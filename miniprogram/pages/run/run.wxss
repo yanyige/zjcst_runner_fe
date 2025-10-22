@@ -1,0 +1,58 @@
+.run-page {
+  padding-bottom: 80rpx;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+}
+
+.stat-item .label {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.stat-item .value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1296db;
+  margin-top: 12rpx;
+}
+
+.control {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.pause-btn {
+  flex: 1;
+  margin: 0 24rpx;
+  background: #ffd666;
+  border-radius: 50rpx;
+  color: #7a4d00;
+}
+
+.stop-btn {
+  flex: 1;
+  margin: 0 24rpx;
+  background: #ff7875;
+  border-radius: 50rpx;
+  color: #fff;
+}
+
+.route-list {
+  max-height: 300rpx;
+}
+
+.route-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f3f3f3;
+}
+
+.tips {
+  text-align: center;
+  margin: 24rpx;
+  color: #52c41a;
+}

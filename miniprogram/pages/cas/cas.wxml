@@ -1,0 +1,43 @@
+<form bindsubmit="submit">
+  <view class="section">
+    <view class="section-title">统一认证绑定</view>
+    <view class="input-item">
+      <text>学号</text>
+      <input data-field="studentId" bindinput="handleInput" placeholder="请输入学号" value="{{studentId}}" />
+    </view>
+    <view class="input-item">
+      <text>统一认证密码</text>
+      <input password data-field="casPassword" bindinput="handleInput" placeholder="请输入密码" value="{{casPassword}}" />
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">完善个人信息</view>
+    <view class="input-item">
+      <text>姓名</text>
+      <input data-field="name" bindinput="handleInput" placeholder="姓名" value="{{name}}" />
+    </view>
+    <view class="input-item">
+      <text>年级</text>
+      <input data-field="grade" bindinput="handleInput" placeholder="2022级" value="{{grade}}" />
+    </view>
+    <view class="input-item">
+      <text>班级</text>
+      <input data-field="className" bindinput="handleInput" placeholder="例如 计算机1班" value="{{className}}" />
+    </view>
+    <view class="input-item">
+      <text>性别</text>
+      <radio-group class="gender" bindchange="handleGenderChange">
+        <label class="gender-option">
+          <radio value="男" checked="{{gender==='男'}}" /> 男
+        </label>
+        <label class="gender-option">
+          <radio value="女" checked="{{gender==='女'}}" /> 女
+        </label>
+      </radio-group>
+    </view>
+  </view>
+
+  <view wx:if="{{error}}" class="error">{{error}}</view>
+  <button class="primary-btn" loading="{{loading}}" formType="submit">提交绑定</button>
+</form>
