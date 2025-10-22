@@ -39,6 +39,5 @@ miniprogram/
 - `GET /api/run/history`
 - `GET /api/statistics/rank`
 - `GET /api/users/me`
-- `POST /api/users/avatar`（文件上传）
 
 请确保后端服务已实现并部署这些接口。

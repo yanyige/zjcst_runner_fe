@@ -1,16 +1,4 @@
-<view class="profile-page" wx:if="{{userInfo}}">
-  <view class="section user-card">
-    <view class="avatar" bindtap="handleChooseAvatar">
-      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
-      <view wx:else class="avatar-placeholder">{{placeholderInitial}}</view>
-      <view class="change-tip">点击更换头像</view>
-    </view>
-    <view class="info">
-      <view class="name">{{userInfo.name || '未设置姓名'}}</view>
-      <view class="text-muted">学号：{{userInfo.student_id || '--'}}</view>
-      <view class="text-muted">班级：{{userInfo.class_name || '--'}} | 年级：{{userInfo.grade || '--'}}</view>
-    </view>
-  </view>
+<view class="profile-page">
 
   <view class="section total">
     <view class="section-title">累计里程</view>

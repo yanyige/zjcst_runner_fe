@@ -44,9 +44,6 @@ Page({
       if (res.token) {
         app.setToken(res.token);
       }
-      if (res.user) {
-        app.setUserInfo(res.user);
-      }
       wx.removeStorageSync('pendingOpenId');
       wx.showToast({ title: '绑定成功', icon: 'success' });
       setTimeout(() => {

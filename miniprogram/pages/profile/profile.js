@@ -1,4 +1,3 @@
-import { fetchUserProfile, updateAvatar } from '../../utils/user';
 import { request } from '../../utils/request';
 
 const app = getApp();
@@ -11,21 +10,12 @@ function computeBadges(distance) {
   return badges;
 }
 
-function getPlaceholderInitial(userInfo) {
-  const name = userInfo?.name?.trim();
-  if (name) return name[0];
-  const studentId = userInfo?.student_id?.trim();
-  if (studentId) return studentId.slice(-1);
-  return '跑';
-}
 
 Page({
   data: {
-    userInfo: null,
     totalDistance: 0,
     loading: false,
-    badges: [],
-    placeholderInitial: '跑'
+    badges: []
   },
   onShow() {
     if (!app?.globalData?.token) {
@@ -36,18 +26,16 @@ Page({
   },
   init() {
     this.setData({ loading: true });
-    Promise.all([fetchUserProfile(), this.fetchTotalDistance()])
-      .then(([userInfo, totalDistance]) => {
+    this.fetchTotalDistance()
+      .then((totalDistance) => {
         const badges = computeBadges(totalDistance);
         this.setData({
-          userInfo,
           totalDistance,
-          badges,
-          placeholderInitial: getPlaceholderInitial(userInfo)
+          badges
         });
       })
       .catch(() => {
-        wx.showToast({ title: '获取个人信息失败', icon: 'none' });
+        wx.showToast({ title: '获取跑步数据失败', icon: 'none' });
       })
       .finally(() => {
         this.setData({ loading: false });
@@ -58,27 +46,6 @@ Page({
       const records = res.records || res || [];
       const total = records.reduce((sum, item) => sum + Number(item.distance || 0), 0);
       return Number(total.toFixed(2));
-    });
-  },
-  handleChooseAvatar() {
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      success: (res) => {
-        const filePath = res.tempFiles[0].tempFilePath;
-        updateAvatar(filePath)
-          .then((result) => {
-            if (result.avatarUrl) {
-              this.setData({
-                userInfo: { ...(this.data.userInfo || {}), avatarUrl: result.avatarUrl }
-              });
-              wx.showToast({ title: '头像更新成功', icon: 'success' });
-            }
-          })
-          .catch(() => {
-            wx.showToast({ title: '头像更新失败', icon: 'none' });
-          });
-      }
     });
   },
   handleLogout() {

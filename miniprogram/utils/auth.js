@@ -34,20 +34,45 @@ export function refreshTokenIfNeeded() {
   }).catch(() => '');
 }
 
+// 微信登录（标准流程）
 export function loginWithWeChat() {
   return new Promise((resolve, reject) => {
+    // 检查是否已有token
+    const token = wx.getStorageSync('token');
+    if (token) {
+      console.log('已有token，直接返回');
+      resolve({ token: token });
+      return;
+    }
+
+    // 获取微信登录码
     wx.login({
       success(loginRes) {
         if (!loginRes.code) {
           reject(new Error('获取临时登录凭证失败'));
           return;
         }
+        
+        console.log('发送code到后端进行登录:', loginRes.code);
+        // 直接发送code到后端，后端处理完整的登录流程
         request({
           url: '/api/auth/wechat-login',
           method: 'POST',
-          data: { code: loginRes.code, env: config.env }
+          data: { 
+            code: loginRes.code
+          }
         })
-          .then(resolve)
+          .then(res => {
+            console.log('登录响应:', res);
+            if (res && res.token) {
+              // 缓存token
+              wx.setStorageSync('token', res.token);
+              console.log('登录成功，token已缓存');
+              resolve(res);
+            } else {
+              reject(new Error('登录失败'));
+            }
+          })
           .catch(reject);
       },
       fail(err) {
@@ -56,3 +81,4 @@ export function loginWithWeChat() {
     });
   });
 }
+

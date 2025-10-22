@@ -27,12 +27,13 @@
 }
 
 .login-btn {
-  margin-top: 64rpx;
+  margin-top: 32rpx;
   width: 100%;
   border-radius: 50rpx;
   background: linear-gradient(135deg, #1296db, #57c5f7);
   box-shadow: 0 12rpx 24rpx rgba(18, 150, 219, 0.2);
 }
+
 
 .tips {
   margin-top: 32rpx;

@@ -43,4 +43,5 @@
   <view wx:if="{{allowUpload}}" class="tips">
     已满足 {{minValidDistance}} 公里有效打卡要求
   </view>
+
 </view>
