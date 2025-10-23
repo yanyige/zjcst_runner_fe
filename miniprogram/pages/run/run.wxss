@@ -78,3 +78,44 @@
   color: #52c41a;
 }
 
+/* 地图样式 */
+.map {
+  margin: 20rpx;
+}
+
+.map-container {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 12rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+  padding: 0 20rpx;
+}
+
+/* 结果页面样式 */
+.result-interface .section.stats {
+  margin-bottom: 20rpx;
+}
+
+.result-interface .stat-item {
+  background: #f8f9fa;
+  border-radius: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.result-interface .stat-item .label {
+  color: #666;
+  font-size: 24rpx;
+}
+
+.result-interface .stat-item .value {
+  color: #1296db;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+

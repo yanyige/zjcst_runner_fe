@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "历史记录"
+  "navigationBarTitleText": "跑步历史",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f5f5f5"
 }

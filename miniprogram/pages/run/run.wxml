@@ -1,57 +1,114 @@
 <view class="run-page">
-  <view class="section stats">
-    <view class="stat-item">
-      <view class="label">总距离 (公里)</view>
-      <view class="value">{{distanceText}}</view>
+  <!-- 主界面 -->
+  <view wx:if="{{showMain}}" class="main-interface">
+    <view class="section stats">
+      <view class="stat-item">
+        <view class="label">总距离 (公里)</view>
+        <view class="value">{{distance}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">用时</view>
+        <view class="value">{{hours}}:{{minutes}}:{{secondes}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">当前速度</view>
+        <view class="value">{{speed}}</view>
+      </view>
     </view>
-    <view class="stat-item">
-      <view class="label">用时</view>
-      <view class="value">{{formattedTime}}</view>
-    </view>
-    <view class="stat-item">
-      <view class="label">平均配速</view>
-      <view class="value">{{pace}}</view>
-    </view>
-  </view>
 
-  <view class="section control">
-    <block wx:if="{{!isRunning}}">
+    <view class="section control">
       <button class="primary-btn" bindtap="startRun">开始跑步</button>
-    </block>
-    <block wx:elif="{{paused}}">
-      <button class="primary-btn" bindtap="resumeRun">继续</button>
-      <button class="stop-btn" bindtap="stopRun">结束</button>
-    </block>
-    <block wx:else>
-      <button class="pause-btn" bindtap="pauseRun">暂停</button>
-      <button class="stop-btn" bindtap="stopRun">结束</button>
-    </block>
-  </view>
-
-  <!-- 当前定位信息 -->
-  <view class="section current-location" wx:if="{{currentLocation}}">
-    <view class="section-title">当前定位</view>
-    <view class="location-item current">
-      <view>纬度：{{currentLocation.displayLat}} 经度：{{currentLocation.displayLng}}</view>
-      <view class="text-muted">速度：{{currentLocation.speed || 0}} m/s | 精度：{{currentLocation.accuracy}}m</view>
     </view>
   </view>
 
-  <!-- 轨迹历史 -->
-  <view class="section route" wx:if="{{path.length}}">
-    <view class="section-title">轨迹记录 (每1秒记录一次)</view>
-    <scroll-view class="route-list" scroll-y>
-      <block wx:for="{{path}}" wx:key="timestamp">
-        <view class="route-item">
-          <view>纬度：{{item.displayLat}} 经度：{{item.displayLng}}</view>
-          <view class="text-muted">速度：{{item.speed || 0}} m/s | {{item.timestamp}}</view>
-        </view>
-      </block>
-    </scroll-view>
+  <!-- 跑步界面 -->
+  <view wx:if="{{!showMain && !showRes}}" class="running-interface">
+    <view class="section stats">
+      <view class="stat-item">
+        <view class="label">总距离 (公里)</view>
+        <view class="value">{{distance}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">用时</view>
+        <view class="value">{{hours}}:{{minutes}}:{{secondes}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">当前速度</view>
+        <view class="value">{{speed}}</view>
+      </view>
+    </view>
+
+    <view class="section control">
+      <button class="pause-btn" bindtap="pauseRun">{{pause}}</button>
+      <button class="stop-btn" bindtap="stopRun">结束</button>
+    </view>
+
+    <!-- 轨迹地图 -->
+    <view class="section map" wx:if="{{polyLine.length}}">
+      <view class="section-title">跑步轨迹</view>
+      <map 
+        class="map-container"
+        longitude="{{longitude}}" 
+        latitude="{{latitude}}"
+        scale="16"
+        polyline="{{polyLine}}"
+        show-location="true">
+      </map>
+    </view>
   </view>
 
-  <view wx:if="{{allowUpload}}" class="tips">
-    已满足 {{minValidDistance}} 公里有效打卡要求
+  <!-- 结果界面 -->
+  <view wx:if="{{showRes}}" class="result-interface">
+    <view class="section stats">
+      <view class="stat-item">
+        <view class="label">总距离 (公里)</view>
+        <view class="value">{{distance}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">用时</view>
+        <view class="value">{{hours}}:{{minutes}}:{{secondes}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">平均速度</view>
+        <view class="value">{{avrSpeed}}</view>
+      </view>
+    </view>
+
+    <view class="section stats">
+      <view class="stat-item">
+        <view class="label">最高速度</view>
+        <view class="value">{{maxSpeed}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">最低速度</view>
+        <view class="value">{{minSpeed}}</view>
+      </view>
+      <view class="stat-item">
+        <view class="label">消耗热量</view>
+        <view class="value">{{heat}} 卡</view>
+      </view>
+    </view>
+
+    <!-- 轨迹地图 -->
+    <view class="section map" wx:if="{{polyLine.length}}">
+      <view class="section-title">跑步轨迹</view>
+      <map 
+        class="map-container"
+        longitude="{{longitude}}" 
+        latitude="{{latitude}}"
+        scale="16"
+        polyline="{{polyLine}}"
+        show-location="true">
+      </map>
+    </view>
+
+    <view wx:if="{{allowUpload}}" class="tips">
+      已满足 {{minValidDistance}} 公里有效打卡要求
+    </view>
+
+    <view class="section control">
+      <button class="primary-btn" bindtap="initData">重新开始</button>
+    </view>
   </view>
 
 </view>

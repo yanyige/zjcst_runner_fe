@@ -2,84 +2,143 @@ import { request } from '../../utils/request';
 
 const app = getApp();
 
-function toDate(date) {
-  return new Date(date);
-}
-
-function getWeekStart(date) {
-  const d = new Date(date);
-  const day = d.getDay() || 7;
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - day + 1);
-  return d;
-}
-
-function formatDuration(duration) {
-  const min = Math.floor(duration / 60);
-  const sec = duration % 60;
-  return `${min}'${sec < 10 ? '0' : ''}${sec}"`;
-}
-
 Page({
   data: {
-    records: [],
+    historyList: [],
     loading: false,
-    weeklyDistance: 0,
-    monthlyDistance: 0
+    isEmpty: false
   },
-  onShow() {
-    if (!app?.globalData?.token) {
-      wx.redirectTo({ url: '/pages/login/login' });
-      return;
-    }
+
+  onLoad() {
     this.loadHistory();
   },
-  loadHistory() {
-    this.setData({ loading: true });
-    request({ url: '/api/run/history' })
-      .then((res) => {
-        const records = (res.records || res || []).map((item) => {
-          const distance = Number(item.distance || 0);
-          const duration = Number(item.duration || 0);
-          return {
-            ...item,
-            distance,
-            duration,
-            paceText: item.pace || (distance ? formatDuration(Math.round(duration / distance)) : '--'),
-            durationText: formatDuration(duration)
-          };
-        });
-        const now = new Date();
-        const weekStart = getWeekStart(now);
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        let weeklyDistance = 0;
-        let monthlyDistance = 0;
-        records.forEach((record) => {
-          const recordDate = toDate(record.date);
-          if (recordDate >= weekStart) {
-            weeklyDistance += Number(record.distance || 0);
-          }
-          if (recordDate >= monthStart) {
-            monthlyDistance += Number(record.distance || 0);
-          }
-        });
-        this.setData({
-          records,
-          weeklyDistance: Number(weeklyDistance.toFixed(2)),
-          monthlyDistance: Number(monthlyDistance.toFixed(2))
-        });
-      })
-      .catch(() => {
-        wx.showToast({ title: '获取历史记录失败', icon: 'none' });
-      })
-      .finally(() => {
-        this.setData({ loading: false });
-      });
+
+  onShow() {
+    // 每次显示页面时刷新数据
+    this.loadHistory();
   },
-  goDetail(e) {
-    const record = e.currentTarget.dataset.record;
+
+  // 加载历史记录
+  async loadHistory() {
+    this.setData({ loading: true });
+    
+    try {
+      const res = await request({
+        url: '/api/run/history',
+        method: 'GET'
+      });
+      
+      if (res.success) {
+        this.setData({
+          historyList: res.data || [],
+          isEmpty: (res.data || []).length === 0
+        });
+      } else {
+        wx.showToast({
+          title: res.message || '加载失败',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      console.error('加载历史记录失败:', error);
+      wx.showToast({
+        title: '加载失败，请稍后重试',
+        icon: 'none'
+      });
+    } finally {
+      this.setData({ loading: false });
+    }
+  },
+
+  // 格式化时间显示
+  formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+      return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+  },
+
+  // 格式化日期显示
+  formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = now - date;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return '今天 ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return '昨天 ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays < 7) {
+      return `${diffDays}天前`;
+    } else {
+      return date.toLocaleDateString('zh-CN');
+    }
+  },
+
+  // 查看详情
+  viewDetail(e) {
+    const { id } = e.currentTarget.dataset;
     wx.navigateTo({
-      url: `/pages/historyDetail/historyDetail?record=${encodeURIComponent(JSON.stringify(record))}`
+      url: `/pages/runDetail/runDetail?id=${id}`
+    });
+  },
+
+  // 删除记录
+  deleteRecord(e) {
+    const { id, index } = e.currentTarget.dataset;
+    
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这条跑步记录吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            const result = await request({
+              url: `/api/run/delete/${id}`,
+              method: 'DELETE'
+            });
+            
+            if (result.success) {
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              });
+              
+              // 从列表中移除
+              const { historyList } = this.data;
+              historyList.splice(index, 1);
+              this.setData({
+                historyList,
+                isEmpty: historyList.length === 0
+              });
+            } else {
+              wx.showToast({
+                title: result.message || '删除失败',
+                icon: 'none'
+              });
+            }
+          } catch (error) {
+            console.error('删除记录失败:', error);
+            wx.showToast({
+              title: '删除失败，请稍后重试',
+              icon: 'none'
+            });
+          }
+        }
+      }
+    });
+  },
+
+  // 下拉刷新
+  onPullDownRefresh() {
+    this.loadHistory().finally(() => {
+      wx.stopPullDownRefresh();
     });
   }
 });

@@ -1,37 +1,55 @@
 <view class="history-page">
-  <view class="section summary">
-    <view class="summary-item">
-      <view class="label">本周累计</view>
-      <view class="value">{{weeklyDistance}} km</view>
-    </view>
-    <view class="summary-item">
-      <view class="label">本月累计</view>
-      <view class="value">{{monthlyDistance}} km</view>
-    </view>
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
   </view>
 
-  <view class="section">
-    <view class="section-title">历史记录</view>
-    <view wx:if="{{!records.length && !loading}}" class="empty">暂无记录，快去跑步吧！</view>
-    <view wx:if="{{loading}}" class="loading">加载中...</view>
-    <block wx:for="{{records}}" wx:key="id">
-      <view class="record-item" data-record="{{item}}" bindtap="goDetail">
-        <view class="record-header">
-          <view class="date">{{item.date}}</view>
-          <view class="badge" wx:if="{{item.is_valid===0}}">无效</view>
+  <!-- 空状态 -->
+  <view wx:elif="{{isEmpty}}" class="empty">
+    <image src="/images/empty.png" class="empty-image" mode="aspectFit"></image>
+    <text class="empty-text">暂无跑步记录</text>
+    <text class="empty-desc">开始你的第一次跑步吧！</text>
+  </view>
+
+  <!-- 历史记录列表 -->
+  <view wx:else class="history-list">
+    <block wx:for="{{historyList}}" wx:key="id" wx:for-index="index">
+      <view class="history-item" bindtap="viewDetail" data-id="{{item.id}}">
+        <view class="item-header">
+          <view class="date">{{formatDate(item.createdAt)}}</view>
+          <view class="duration">{{formatDuration(item.duration)}}</view>
         </view>
-        <view class="record-body">
-          <view class="metric">
-            <view class="metric-label">距离</view>
-            <view class="metric-value">{{item.distance}} km</view>
+        
+        <view class="item-content">
+          <view class="distance">
+            <text class="distance-value">{{item.distance}}</text>
+            <text class="distance-unit">公里</text>
           </view>
-          <view class="metric">
-            <view class="metric-label">时长</view>
-            <view class="metric-value">{{item.durationText}}</view>
+          
+          <view class="stats">
+            <view class="stat-item">
+              <text class="stat-label">平均配速</text>
+              <text class="stat-value">{{item.pace}}</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-label">消耗热量</text>
+              <text class="stat-value">{{item.calories}}卡</text>
+            </view>
           </view>
-          <view class="metric">
-            <view class="metric-label">配速</view>
-            <view class="metric-value">{{item.paceText}}</view>
+        </view>
+        
+        <view class="item-footer">
+          <view class="route-info">
+            <text class="route-points">{{item.routePoints}}个轨迹点</text>
+          </view>
+          <view class="actions">
+            <button class="action-btn delete-btn" 
+                    bindtap="deleteRecord" 
+                    data-id="{{item.id}}" 
+                    data-index="{{index}}"
+                    catchtap="true">
+              删除
+            </button>
           </view>
         </view>
       </view>
