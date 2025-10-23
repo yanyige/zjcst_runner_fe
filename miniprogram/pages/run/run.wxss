@@ -119,3 +119,105 @@
   font-weight: 600;
 }
 
+/* 分段记录样式 */
+.segments {
+  margin: 20rpx;
+}
+
+.segments-list {
+  max-height: 400rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  background: #fafafa;
+}
+
+.segment-item {
+  padding: 20rpx;
+  border-bottom: 1rpx solid #e0e0e0;
+  background: white;
+  margin: 8rpx;
+  border-radius: 8rpx;
+}
+
+.segment-item:last-child {
+  border-bottom: none;
+}
+
+.segment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.segment-index {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.segment-duration {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.segment-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.segment-distance {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1296db;
+}
+
+.segment-speed {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.segment-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8rpx;
+  padding-top: 8rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.time-label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.time-value {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #1296db;
+}
+
+/* 跑步界面的分段记录样式 */
+.running-interface .segments {
+  margin: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.running-interface .segments-list {
+  max-height: 300rpx;
+  background: white;
+  border-radius: 8rpx;
+  border: 1rpx solid #e0e0e0;
+}
+
+.running-interface .segment-item {
+  background: #fafafa;
+  border-radius: 6rpx;
+  margin: 8rpx;
+  padding: 16rpx;
+  border-left: 4rpx solid #1296db;
+}
+

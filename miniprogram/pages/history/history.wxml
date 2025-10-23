@@ -41,6 +41,7 @@
         <view class="item-footer">
           <view class="route-info">
             <text class="route-points">{{item.routePoints}}个轨迹点</text>
+            <text class="segment-count" wx:if="{{item.segmentCount > 0}}">{{item.segmentCount}}段跑步</text>
           </view>
           <view class="actions">
             <button class="action-btn delete-btn" 

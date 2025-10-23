@@ -39,6 +39,10 @@ let spdMax = 0;
 let spdMin = 0;
 let timer = null;
 
+// 分段跑步记录
+let runSegments = []; // 存储每次跑步的段落
+let currentSegment = null; // 当前正在进行的段落
+
 // 比较最大最小速度
 function spdCheck(speed) {
   spdMax = speed > spdMax ? speed : spdMax;
@@ -72,6 +76,12 @@ Page({
     minSpeed: "--",
     avrSpeed: "--",
     heat: "0",
+    // 分段记录相关
+    runSegments: [],
+    currentSegmentIndex: 0,
+    totalDistance: "0.00",
+    totalTime: "00:00:00",
+    totalAvgSpeed: "--",
     setting: {
       power: true,
       voice: true,
@@ -98,16 +108,36 @@ Page({
   startRun() {
     if (this.data.pause === "继续") return;
     
+    // 创建新的跑步段落
+    currentSegment = {
+      index: this.data.currentSegmentIndex + 1,
+      startTime: Date.now(),
+      startDistance: distanceSum,
+      points: [],
+      duration: 0,
+      distance: 0,
+      avgSpeed: 0
+    };
+    
     wx.getLocation({
       type: 'gcj02',
       altitude: true, //高精度定位
       success: (res) => {
         const latitude = res.latitude;
         const longitude = res.longitude;
+        
+        // 添加到当前段落
+        currentSegment.points.push({
+          latitude,
+          longitude,
+        });
+        
         point.push({
           latitude,
           longitude,
         });
+        
+        console.log(`开始第${currentSegment.index}段跑步`);
         
         // 开始监听位置
         wx.startLocationUpdate({
@@ -155,13 +185,31 @@ Page({
       longitude,
     });
     
+    // 添加到全局轨迹
     point.push({
       latitude,
       longitude,
     });
     
+    // 添加到当前段落
+    if (currentSegment) {
+      currentSegment.points.push({
+        latitude,
+        longitude,
+      });
+    }
+    
     let distance = (this.getDistance()).toFixed(2);
     this.setData({ distance });
+    
+    // 更新当前段落数据
+    if (currentSegment) {
+      currentSegment.distance = parseFloat(distance) - currentSegment.startDistance;
+      currentSegment.duration = count;
+      if (currentSegment.duration > 0) {
+        currentSegment.avgSpeed = (currentSegment.distance * 1000) / currentSegment.duration;
+      }
+    }
     
     // 整公里震动提醒
     if (this.data.setting.shake) {
@@ -181,7 +229,8 @@ Page({
       经度: longitude,
       速度: speed,
       精度: accuracy,
-      累计距离: distance + 'km'
+      累计距离: distance + 'km',
+      当前段落: currentSegment ? `第${currentSegment.index}段` : '无'
     });
   },
   
@@ -230,11 +279,42 @@ Page({
   // 暂停运动
   pauseRun() {
     if (this.data.pause == "暂停") {
-      // 暂停：停止监听和计时
+      // 暂停：停止监听和计时，保存当前段落
       clearInterval(timer);
       wx.offLocationChange(this.handleLocationChangeFn);
       wx.stopLocationUpdate();
       timer = null;
+      
+      // 保存当前段落
+      if (currentSegment) {
+        currentSegment.endTime = Date.now();
+        currentSegment.duration = count;
+        currentSegment.distance = parseFloat(this.data.distance) - currentSegment.startDistance;
+        if (currentSegment.duration > 0) {
+          currentSegment.avgSpeed = (currentSegment.distance * 1000) / currentSegment.duration;
+        }
+        
+        // 添加到段落列表
+        runSegments.push({...currentSegment});
+        
+        console.log(`第${currentSegment.index}段跑步完成:`, {
+          序号: currentSegment.index,
+          跑步时间: this.formatDuration(currentSegment.duration),
+          跑步路程: currentSegment.distance.toFixed(2) + 'km',
+          平均速度: formatSpeed(currentSegment.avgSpeed)
+        });
+        
+        // 更新UI显示段落信息
+        this.updateSegmentsDisplay();
+        
+        // 显示段落完成提示
+        wx.showToast({
+          title: `第${currentSegment.index}段完成`,
+          icon: 'success',
+          duration: 2000
+        });
+      }
+      
       this.setData({
         pause: "继续",
       });
@@ -246,6 +326,17 @@ Page({
   
   // 继续运动
   resumeRun() {
+    // 重置当前段落数据（不重置全局数据）
+    currentSegment = {
+      index: this.data.currentSegmentIndex + 1,
+      startTime: Date.now(),
+      startDistance: distanceSum,
+      points: [],
+      duration: 0,
+      distance: 0,
+      avgSpeed: 0
+    };
+    
     // 获取当前位置作为新的起点
     wx.getLocation({
       type: 'gcj02',
@@ -254,13 +345,19 @@ Page({
         const latitude = res.latitude;
         const longitude = res.longitude;
         
-        // 添加新的起点
+        // 添加到当前段落
+        currentSegment.points.push({
+          latitude,
+          longitude,
+        });
+        
+        // 添加到全局轨迹
         point.push({
           latitude,
           longitude,
         });
         
-        console.log('继续跑步，新起点:', { latitude, longitude });
+        console.log(`开始第${currentSegment.index}段跑步，新起点:`, { latitude, longitude });
         
         // 重新开始位置监听
         wx.startLocationUpdate({
@@ -299,19 +396,40 @@ Page({
     wx.stopLocationUpdate();
     timer = null;
     
-    const duration = count; // 秒数
-    const distance = parseFloat(this.data.distance);
-    const allowUpload = distance >= this.data.minValidDistance;
-    const validDuration = duration >= 120; // 2分钟 = 120秒
+    // 保存最后一段（如果存在）
+    if (currentSegment) {
+      currentSegment.endTime = Date.now();
+      currentSegment.duration = count;
+      currentSegment.distance = parseFloat(this.data.distance) - currentSegment.startDistance;
+      if (currentSegment.duration > 0) {
+        currentSegment.avgSpeed = (currentSegment.distance * 1000) / currentSegment.duration;
+      }
+      runSegments.push({...currentSegment});
+    }
     
-    // 计算平均速度
-    let spdAvr = 0;
-    if (distance > 0 && count > 0) {
-      spdAvr = (distance * 1000) / count; // m/s
+    // 计算总数据
+    const totalDuration = count; // 总秒数
+    const totalDistance = parseFloat(this.data.distance); // 总距离
+    const allowUpload = totalDistance >= this.data.minValidDistance;
+    const validDuration = totalDuration >= 120; // 2分钟 = 120秒
+    
+    // 计算总平均速度
+    let totalSpdAvr = 0;
+    if (totalDistance > 0 && totalDuration > 0) {
+      totalSpdAvr = (totalDistance * 1000) / totalDuration; // m/s
     }
     
     // 计算热量 = 体重（kg）* 距离（km）* 运动系数（k） 跑步：k=1.036
-    const heat = parseInt(55 * distance * 1.036);
+    const heat = parseInt(55 * totalDistance * 1.036);
+    
+    // 更新段落索引
+    this.setData({
+      currentSegmentIndex: runSegments.length,
+      runSegments: [...runSegments],
+      totalDistance: totalDistance.toFixed(2),
+      totalTime: this.formatDuration(totalDuration),
+      totalAvgSpeed: totalSpdAvr > 0 ? formatSpeed(totalSpdAvr) : '--'
+    });
     
     this.setData({ 
       showMain: false,
@@ -319,25 +437,60 @@ Page({
       allowUpload,
       maxSpeed: spdMax > 0 ? formatSpeed(spdMax) : '--',
       minSpeed: spdMin > 0 ? formatSpeed(spdMin) : '--',
-      avrSpeed: spdAvr > 0 ? formatSpeed(spdAvr) : '--',
+      avrSpeed: totalSpdAvr > 0 ? formatSpeed(totalSpdAvr) : '--',
       heat: heat.toString()
     });
     
     // 绘制最终轨迹
     this.drawline();
     
+    // 打印分段统计信息
+    console.log('跑步结束，分段统计:');
+    runSegments.forEach((segment, index) => {
+      console.log(`第${segment.index}段:`, {
+        序号: segment.index,
+        跑步时间: this.formatDuration(segment.duration),
+        跑步路程: segment.distance.toFixed(2) + 'km',
+        平均速度: formatSpeed(segment.avgSpeed)
+      });
+    });
+    console.log('总计:', {
+      总时间: this.formatDuration(totalDuration),
+      总路程: totalDistance.toFixed(2) + 'km',
+      总平均速度: formatSpeed(totalSpdAvr)
+    });
+    
     // 检查是否满足保存条件
-    if (!allowUpload) {
-      wx.showToast({ title: `本次距离不足${this.data.minValidDistance}公里`, icon: 'none' });
+    if (!allowUpload && !validDuration) {
+      wx.showToast({ 
+        title: `本次跑步距离不足${this.data.minValidDistance}公里且时间不足2分钟`, 
+        icon: 'none',
+        duration: 3000
+      });
+    } else if (!allowUpload) {
+      wx.showToast({ 
+        title: `本次距离不足${this.data.minValidDistance}公里`, 
+        icon: 'none' 
+      });
     } else if (!validDuration) {
-      wx.showToast({ title: '本次跑步时间不足2分钟', icon: 'none' });
+      wx.showToast({ 
+        title: '本次跑步时间不足2分钟', 
+        icon: 'none' 
+      });
     } else {
-      // 自动保存到历史记录
-      this.saveToHistory({ duration, distance, path: point, spdAvr, heat });
+      // 满足条件，保存到历史记录
+      this.saveToHistory({ 
+        duration: totalDuration, 
+        distance: totalDistance, 
+        path: point, 
+        spdAvr: totalSpdAvr, 
+        heat,
+        segments: runSegments
+      });
       
       wx.showModal({
         title: '跑步完成',
-        content: `本次跑步 ${distance.toFixed(2)} 公里，已自动保存到历史记录`,
+        content: `本次跑步 ${totalDistance.toFixed(2)} 公里，共${runSegments.length}段，已自动保存到历史记录`,
         confirmText: '查看历史',
         cancelText: '重新开始',
         success: ({ confirm }) => {
@@ -353,9 +506,20 @@ Page({
     }
   },
   // 保存到历史记录
-  async saveToHistory({ duration, distance, path, spdAvr, heat }) {
+  async saveToHistory({ duration, distance, path, spdAvr, heat, segments }) {
     try {
       const pace = this.calculatePace(duration, distance);
+      
+      // 处理分段数据，确保每个段落都有正确的数据格式
+      const processedSegments = segments.map(segment => ({
+        index: segment.index,
+        duration: segment.duration,
+        distance: parseFloat(segment.distance.toFixed(2)),
+        avgSpeed: segment.avgSpeed,
+        startTime: segment.startTime,
+        endTime: segment.endTime,
+        points: segment.points || []
+      }));
       
       const runData = {
         distance: parseFloat(distance.toFixed(2)),
@@ -368,8 +532,19 @@ Page({
         route: JSON.stringify(path),
         routePoints: path.length,
         startTime: new Date(Date.now() - duration * 1000).toISOString(),
-        endTime: new Date().toISOString()
+        endTime: new Date().toISOString(),
+        // 新增分段数据
+        segments: processedSegments,
+        segmentCount: segments.length,
+        segmentDetails: JSON.stringify(processedSegments)
       };
+      
+      console.log('准备保存跑步记录:', {
+        总距离: runData.distance,
+        总时长: runData.duration,
+        分段数: runData.segmentCount,
+        分段详情: processedSegments
+      });
       
       const res = await request({
         url: '/api/run/save',
@@ -378,12 +553,24 @@ Page({
       });
       
       if (res.success) {
-        console.log('跑步记录已保存到历史');
+        console.log('跑步记录已保存到历史，包含', segments.length, '个分段');
+        wx.showToast({
+          title: '跑步记录已保存',
+          icon: 'success'
+        });
       } else {
         console.error('保存跑步记录失败:', res.message);
+        wx.showToast({
+          title: '保存失败: ' + (res.message || '未知错误'),
+          icon: 'none'
+        });
       }
     } catch (error) {
       console.error('保存跑步记录失败:', error);
+      wx.showToast({
+        title: '保存失败，请检查网络连接',
+        icon: 'none'
+      });
     }
   },
   
@@ -410,6 +597,26 @@ Page({
     });
   },
   
+  // 格式化时间显示
+  formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    const pad = (v) => (v < 10 ? `0${v}` : `${v}`);
+    return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+  },
+  
+  // 更新段落显示
+  updateSegmentsDisplay() {
+    this.setData({
+      currentSegmentIndex: runSegments.length,
+      runSegments: [...runSegments]
+    });
+    
+    console.log('更新段落显示，当前段落数:', runSegments.length);
+    console.log('段落数据:', runSegments);
+  },
+
   // 初始化数据
   initData() {
     point = [];
@@ -418,6 +625,8 @@ Page({
     spdMax = 0;
     spdMin = 0;
     timer = null;
+    runSegments = [];
+    currentSegment = null;
     
     this.setData({
       showMain: true,
@@ -432,7 +641,12 @@ Page({
       avrSpeed: "--",
       heat: "0",
       polyLine: [],
-      pause: "暂停"
+      pause: "暂停",
+      runSegments: [],
+      currentSegmentIndex: 0,
+      totalDistance: "0.00",
+      totalTime: "00:00:00",
+      totalAvgSpeed: "--"
     });
   },
   

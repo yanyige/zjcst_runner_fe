@@ -55,25 +55,69 @@
         show-location="true">
       </map>
     </view>
+
+    <!-- 实时分段记录 -->
+    <view class="section segments" wx:if="{{runSegments.length > 0}}">
+      <view class="section-title">已完成段落 ({{runSegments.length}}段)</view>
+      <scroll-view class="segments-list" scroll-y>
+        <block wx:for="{{runSegments}}" wx:key="index">
+          <view class="segment-item">
+            <view class="segment-header">
+              <text class="segment-index">第{{item.index}}段</text>
+              <text class="segment-duration">{{item.duration}}秒</text>
+            </view>
+            <view class="segment-content">
+              <view class="segment-distance">{{item.distance}}km</view>
+              <view class="segment-speed">{{item.avgSpeed}}m/s</view>
+            </view>
+            <view class="segment-time">
+              <text class="time-label">段落用时:</text>
+              <text class="time-value">{{item.duration}}秒</text>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
   </view>
 
   <!-- 结果界面 -->
   <view wx:if="{{showRes}}" class="result-interface">
+    <!-- 总统计 -->
     <view class="section stats">
       <view class="stat-item">
         <view class="label">总距离 (公里)</view>
-        <view class="value">{{distance}}</view>
+        <view class="value">{{totalDistance}}</view>
       </view>
       <view class="stat-item">
-        <view class="label">用时</view>
-        <view class="value">{{hours}}:{{minutes}}:{{secondes}}</view>
+        <view class="label">总用时</view>
+        <view class="value">{{totalTime}}</view>
       </view>
       <view class="stat-item">
-        <view class="label">平均速度</view>
-        <view class="value">{{avrSpeed}}</view>
+        <view class="label">总平均速度</view>
+        <view class="value">{{totalAvgSpeed}}</view>
       </view>
     </view>
 
+    <!-- 分段记录 -->
+    <view class="section segments" wx:if="{{runSegments.length > 0}}">
+      <view class="section-title">分段记录 (共{{runSegments.length}}段)</view>
+      <scroll-view class="segments-list" scroll-y>
+        <block wx:for="{{runSegments}}" wx:key="index">
+          <view class="segment-item">
+            <view class="segment-header">
+              <text class="segment-index">第{{item.index}}段</text>
+              <text class="segment-duration">{{item.duration}}秒</text>
+            </view>
+            <view class="segment-content">
+              <view class="segment-distance">{{item.distance}}km</view>
+              <view class="segment-speed">{{item.avgSpeed}}m/s</view>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+
+    <!-- 详细统计 -->
     <view class="section stats">
       <view class="stat-item">
         <view class="label">最高速度</view>

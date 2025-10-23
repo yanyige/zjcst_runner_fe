@@ -141,6 +141,12 @@
   color: #666;
 }
 
+.segment-count {
+  color: #1296db;
+  font-weight: 600;
+  margin-left: 16rpx;
+}
+
 /* 操作按钮 */
 .actions {
   display: flex;
