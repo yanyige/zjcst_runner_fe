@@ -3,6 +3,7 @@
   "pages": [
     "pages/login/login",
     "pages/cas/cas",
+    "pages/casLogin/casLogin",
     "pages/run/run",
     "pages/history/history",
     "pages/historyDetail/historyDetail",

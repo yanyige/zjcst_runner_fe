@@ -1,0 +1,19 @@
+<view class="container">
+  <view class="header">
+    <text class="title">校园统一认证登录</text>
+    <text class="subtitle">正在跳转到校园统一认证系统...</text>
+  </view>
+  
+  <view class="webview-container">
+    <web-view src="{{loginUrl}}" bindmessage="handleMessage" bindload="handleLoaded" binderror="handleError"></web-view>
+  </view>
+  
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+  
+  <view class="error" wx:if="{{error}}">
+    <text>{{error}}</text>
+    <button class="retry-btn" bindtap="retry">重试</button>
+  </view>
+</view>

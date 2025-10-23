@@ -69,6 +69,10 @@ export function loginWithWeChat() {
               wx.setStorageSync('token', res.token);
               console.log('登录成功，token已缓存');
               resolve(res);
+            } else if (res && res.needBind) {
+              // 需要绑定CAS，返回响应让调用方处理
+              console.log('需要绑定CAS，openid:', res.openid);
+              resolve(res);
             } else {
               reject(new Error('登录失败'));
             }

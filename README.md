@@ -32,12 +32,43 @@ miniprogram/
 
 小程序默认接入以下接口（均为 `config.apiBaseUrl` 下的路径）：
 
-- `POST /api/auth/wechat-login`
-- `POST /api/auth/cas-bind`
-- `POST /api/auth/refresh`
-- `POST /api/run/upload`
-- `GET /api/run/history`
-- `GET /api/statistics/rank`
-- `GET /api/users/me`
+- `POST /api/auth/wechat-login` - 微信登录
+- `POST /api/auth/cas-login` - CAS登录
+- `POST /api/auth/cas-bind-openid` - CAS绑定openid
+- `GET /api/auth/cas-callback` - CAS回调接口
+- `POST /api/auth/cas-bind` - CAS绑定（旧版）
+- `POST /api/auth/refresh` - 刷新token
+- `POST /api/run/upload` - 上传跑步记录
+- `GET /api/run/history` - 获取跑步历史
+- `GET /api/statistics/rank` - 获取排行榜
+- `GET /api/users/me` - 获取用户信息
 
 请确保后端服务已实现并部署这些接口。
+
+## 登录流程
+
+### 微信登录 + CAS 绑定流程
+1. 用户点击"微信登录"按钮
+2. 调用微信登录接口获取 openid
+3. 如果用户未绑定 CAS，自动跳转到校园统一认证页面
+4. 用户在 CAS 页面完成认证
+5. 系统自动将微信 openid 和 CAS 用户信息（学号、姓名、班级等）绑定
+6. 登录完成，跳转到主页
+
+### 直接 CAS 登录流程
+1. 用户直接访问 CAS 登录页面
+2. 完成校园统一认证
+3. 系统创建用户账号并登录
+4. 跳转到主页
+
+## 配置说明
+
+### CAS 配置
+在 `application.yml` 中配置 CAS 服务器信息：
+```yaml
+cas:
+  server:
+    url: https://rz.zjcst.edu.cn/sso  # CAS服务器地址
+  service:
+    url: http://localhost:8080        # 服务回调地址（部署时需修改）
+```

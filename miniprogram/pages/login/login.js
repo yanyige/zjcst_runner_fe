@@ -20,9 +20,23 @@ Page({
         console.log('登录响应:', res);
         
         if (res.needBind) {
+          // 需要绑定CAS，保存openid并跳转到CAS登录
           wx.setStorageSync('pendingOpenId', res.openid);
-          this.setData({ needBind: true, loading: false });
-          wx.navigateTo({ url: '/pages/cas/cas' });
+          if (res.casLoginUrl) {
+            wx.setStorageSync('pendingCasUrl', res.casLoginUrl);
+          }
+          console.log('需要绑定CAS，openid:', res.openid);
+          
+          // 显示提示并跳转到CAS登录
+          wx.showModal({
+            title: '校园统一认证',
+            content: '首次登录需要完成校园统一认证，即将跳转到认证页面。',
+            showCancel: false,
+            confirmText: '继续',
+            success: () => {
+              this.redirectToCasLogin(res.casLoginUrl);
+            }
+          });
           return;
         }
         
@@ -41,6 +55,24 @@ Page({
       .finally(() => {
         this.setData({ loading: false });
       });
+  },
+  
+  redirectToCasLogin(casUrl) {
+    // 获取待绑定的 openid
+    const pendingOpenId = wx.getStorageSync('pendingOpenId');
+    if (!pendingOpenId) {
+      wx.showToast({ title: '登录状态异常，请重新登录', icon: 'none' });
+      return;
+    }
+    const targetUrl = casUrl || wx.getStorageSync('pendingCasUrl');
+    if (!targetUrl) {
+      wx.showToast({ title: '认证地址获取失败，请稍后重试', icon: 'none' });
+      return;
+    }
+    
+    // 跳转到 CAS 登录页面，同时传递 openid
+    const query = `/pages/casLogin/casLogin?openid=${encodeURIComponent(pendingOpenId)}&url=${encodeURIComponent(targetUrl)}`;
+    wx.navigateTo({ url: query });
   },
   
   toHome() {
