@@ -28,13 +28,23 @@
     </block>
   </view>
 
+  <!-- 当前定位信息 -->
+  <view class="section current-location" wx:if="{{currentLocation}}">
+    <view class="section-title">当前定位</view>
+    <view class="location-item current">
+      <view>纬度：{{currentLocation.displayLat}} 经度：{{currentLocation.displayLng}}</view>
+      <view class="text-muted">速度：{{currentLocation.speed || 0}} m/s | 精度：{{currentLocation.accuracy}}m</view>
+    </view>
+  </view>
+
+  <!-- 轨迹历史 -->
   <view class="section route" wx:if="{{path.length}}">
-    <view class="section-title">实时轨迹</view>
+    <view class="section-title">轨迹记录 (每1秒记录一次)</view>
     <scroll-view class="route-list" scroll-y>
       <block wx:for="{{path}}" wx:key="timestamp">
         <view class="route-item">
           <view>纬度：{{item.displayLat}} 经度：{{item.displayLng}}</view>
-          <view class="text-muted">速度：{{item.speed || 0}} m/s</view>
+          <view class="text-muted">速度：{{item.speed || 0}} m/s | {{item.timestamp}}</view>
         </view>
       </block>
     </scroll-view>

@@ -42,6 +42,27 @@
   color: #fff;
 }
 
+/* 当前定位样式 */
+.current-location {
+  background: #f0f9ff;
+  border: 2rpx solid #1296db;
+  border-radius: 12rpx;
+  margin: 20rpx;
+}
+
+.location-item.current {
+  padding: 20rpx;
+  background: #e6f7ff;
+  border-radius: 8rpx;
+  margin: 16rpx;
+}
+
+.location-item.current view:first-child {
+  font-weight: 600;
+  color: #1296db;
+  font-size: 28rpx;
+}
+
 .route-list {
   max-height: 300rpx;
 }

@@ -1,4 +1,5 @@
 import { loginWithWeChat } from '../../utils/auth';
+import { request } from '../../utils/request';
 
 const app = getApp();
 
@@ -6,7 +7,10 @@ Page({
   data: {
     loading: false,
     description: '一键登录，开启每日打卡',
-    needBind: false
+    needBind: false,
+    showBindModal: false,
+    ticketInput: '',
+    binding: false
   },
   onShow() {
     if (app?.globalData?.token) {
@@ -77,5 +81,80 @@ Page({
   
   toHome() {
     wx.switchTab({ url: '/pages/run/run' });
+  },
+
+  // 显示绑定弹窗
+  showBindModal() {
+    this.setData({ showBindModal: true });
+  },
+
+  // 隐藏绑定弹窗
+  hideBindModal() {
+    this.setData({ showBindModal: false, ticketInput: '' });
+  },
+
+  // 阻止弹窗关闭
+  preventClose() {
+    // 空函数，用于阻止事件冒泡
+  },
+
+  // 输入验证码
+  onTicketInput(e) {
+    this.setData({ ticketInput: e.detail.value });
+  },
+
+  // 通过验证码绑定
+  async bindWithTicket() {
+    const ticket = this.data.ticketInput.trim();
+    if (!ticket) {
+      wx.showToast({ title: '请输入验证码', icon: 'none' });
+      return;
+    }
+
+    this.setData({ binding: true });
+
+    try {
+      // 获取微信code
+      const loginRes = await new Promise((resolve, reject) => {
+        wx.login({
+          success: (res) => {
+            if (res.code) {
+              resolve(res.code);
+            } else {
+              reject(new Error('获取登录凭证失败'));
+            }
+          },
+          fail: reject
+        });
+      });
+
+      // 调用新的绑定接口
+      const bindRes = await request({
+        url: '/api/auth/bind-with-code-ticket',
+        method: 'POST',
+        data: {
+          code: loginRes,
+          ticket: ticket
+        }
+      });
+
+      if (bindRes.success) {
+        // 绑定成功，设置token并跳转
+        app.setToken(bindRes.token);
+        wx.showToast({ title: '绑定成功', icon: 'success' });
+        this.hideBindModal();
+        this.toHome();
+      } else {
+        throw new Error(bindRes.error || '绑定失败');
+      }
+    } catch (error) {
+      console.error('绑定失败:', error);
+      wx.showToast({ 
+        title: error.message || '绑定失败，请检查验证码是否正确', 
+        icon: 'none' 
+      });
+    } finally {
+      this.setData({ binding: false });
+    }
   }
 });

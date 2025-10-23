@@ -40,7 +40,9 @@ Page({
     pace: '0',
     path: [],
     allowUpload: false,
-    minValidDistance: 1.0
+    minValidDistance: 1.0,
+    lastLocationTime: 0,
+    currentLocation: null
   },
   onShow() {
     if (!app?.globalData?.token) {
@@ -101,27 +103,44 @@ Page({
     });
     this.locationListener = (location) => {
       if (this.data.paused) return;
+      
+      const currentTime = Date.now();
       const latestPoint = {
         latitude: location.latitude,
         longitude: location.longitude,
         speed: location.speed,
         accuracy: location.accuracy,
-        timestamp: Date.now()
+        timestamp: currentTime
       };
-      const { path } = this.data;
-      const distanceIncrement = calcDistance(path[path.length - 1], latestPoint);
-      const distance = this.data.distance + distanceIncrement / 1000;
-      const displayPoint = {
-        ...latestPoint,
-        displayLat: latestPoint.latitude.toFixed(5),
-        displayLng: latestPoint.longitude.toFixed(5)
-      };
+      
+      // 更新当前定位信息（实时更新）
       this.setData({
-        path: [...path, displayPoint],
-        distance: Number(distance.toFixed(3)),
-        distanceText: distance.toFixed(2)
+        currentLocation: {
+          ...latestPoint,
+          displayLat: latestPoint.latitude.toFixed(5),
+          displayLng: latestPoint.longitude.toFixed(5)
+        }
       });
-      this.updatePace();
+      
+      // 每隔1秒才添加到轨迹路径中
+      if (currentTime - this.data.lastLocationTime >= 1000) {
+        const { path } = this.data;
+        const distanceIncrement = path.length > 0 ? calcDistance(path[path.length - 1], latestPoint) : 0;
+        const distance = this.data.distance + distanceIncrement / 1000;
+        const displayPoint = {
+          ...latestPoint,
+          displayLat: latestPoint.latitude.toFixed(5),
+          displayLng: latestPoint.longitude.toFixed(5)
+        };
+        
+        this.setData({
+          path: [...path, displayPoint],
+          distance: Number(distance.toFixed(3)),
+          distanceText: distance.toFixed(2),
+          lastLocationTime: currentTime
+        });
+        this.updatePace();
+      }
     };
     wx.startLocationUpdate({
       success: () => {

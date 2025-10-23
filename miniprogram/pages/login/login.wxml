@@ -5,5 +5,32 @@
   <button class="login-btn" type="primary" loading="{{loading}}" bindtap="handleLogin">
     微信登录
   </button>
+  <button class="bind-btn" type="default" bindtap="showBindModal">
+    验证码绑定
+  </button>
   <view class="tips">首次登录需要完成校园统一认证</view>
+</view>
+
+<!-- 验证码绑定弹窗 -->
+<view class="modal-mask" wx:if="{{showBindModal}}" bindtap="hideBindModal">
+  <view class="modal-content" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">验证码绑定</text>
+      <text class="modal-close" bindtap="hideBindModal">×</text>
+    </view>
+    <view class="modal-body">
+      <view class="form-item">
+        <text class="form-label">验证码</text>
+        <input class="form-input" placeholder="请输入从CAS认证页面复制的验证码" 
+               value="{{ticketInput}}" bindinput="onTicketInput" />
+      </view>
+      <view class="form-tips">
+        <text>请先完成CAS认证，然后复制验证码到此处进行绑定</text>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel-btn" bindtap="hideBindModal">取消</button>
+      <button class="modal-btn confirm-btn" bindtap="bindWithTicket" loading="{{binding}}">绑定</button>
+    </view>
+  </view>
 </view>
