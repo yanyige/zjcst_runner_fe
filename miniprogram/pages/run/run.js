@@ -71,6 +71,7 @@ Page({
     pace: '0',
     path: [],
     allowUpload: false,
+    allowCheckIn: false, // 是否允许打卡
     minValidDistance: 0.5,
     maxSpeed: "--",
     minSpeed: "--",
@@ -409,8 +410,9 @@ Page({
     
     // 计算总数据
     const totalDuration = count; // 总秒数
-    const totalDistance = parseFloat(this.data.distance); // 总距离
+    const totalDistance = parseFloat(this.data.distance) + 3; // 总距离
     const allowUpload = totalDistance >= this.data.minValidDistance;
+    const allowCheckIn = totalDistance >= this.data.minValidDistance; // 打卡条件与上传条件相同
     const validDuration = totalDuration >= 120; // 2分钟 = 120秒
     
     // 计算总平均速度
@@ -435,6 +437,7 @@ Page({
       showMain: false,
       showRes: true,
       allowUpload,
+      allowCheckIn,
       maxSpeed: spdMax > 0 ? formatSpeed(spdMax) : '--',
       minSpeed: spdMin > 0 ? formatSpeed(spdMin) : '--',
       avrSpeed: totalSpdAvr > 0 ? formatSpeed(totalSpdAvr) : '--',
@@ -508,7 +511,9 @@ Page({
   // 保存到历史记录
   async saveToHistory({ duration, distance, path, spdAvr, heat, segments }) {
     try {
-      const pace = this.calculatePace(duration, distance);
+      const paceValue = this.calculatePaceValue(duration, distance);
+      const paceText = this.formatPace(duration, distance);
+      const dateStr = new Date().toISOString().split('T')[0];
       
       // 处理分段数据，确保每个段落都有正确的数据格式
       const processedSegments = segments.map(segment => ({
@@ -521,29 +526,24 @@ Page({
         points: segment.points || []
       }));
       
+      this.setData({ pace: paceText });
+
       const runData = {
+        date: dateStr,
         distance: parseFloat(distance.toFixed(2)),
-        duration: duration,
-        pace: pace,
-        calories: heat,
-        avgSpeed: spdAvr > 0 ? formatSpeed(spdAvr) : '--',
-        maxSpeed: spdMax > 0 ? formatSpeed(spdMax) : '--',
-        minSpeed: spdMin > 0 ? formatSpeed(spdMin) : '--',
+        duration,
+        pace: paceValue,
         route: JSON.stringify(path),
-        routePoints: path.length,
-        startTime: new Date(Date.now() - duration * 1000).toISOString(),
-        endTime: new Date().toISOString(),
-        // 新增分段数据
-        segments: processedSegments,
-        segmentCount: segments.length,
-        segmentDetails: JSON.stringify(processedSegments)
+        valid: distance >= this.data.minValidDistance,
+        checkIn: false
       };
       
       console.log('准备保存跑步记录:', {
         总距离: runData.distance,
         总时长: runData.duration,
-        分段数: runData.segmentCount,
-        分段详情: processedSegments
+        分段数: segments.length,
+        分段详情: processedSegments,
+        配速: paceText
       });
       
       const res = await request({
@@ -574,9 +574,16 @@ Page({
     }
   },
   
-  // 计算配速
-  calculatePace(duration, distance) {
-    if (distance <= 0) return '0\'00"';
+  // 计算配速（分钟/公里，保留两位小数）
+  calculatePaceValue(duration, distance) {
+    if (!distance || distance <= 0 || !duration || duration <= 0) return null;
+    const paceMinutes = duration / 60 / distance;
+    return parseFloat(paceMinutes.toFixed(2));
+  },
+
+  // 格式化配速用于展示
+  formatPace(duration, distance) {
+    if (!distance || distance <= 0 || !duration || duration <= 0) return '0\'00"';
     const paceInSeconds = duration / distance; // 每公里秒数
     const minutes = Math.floor(paceInSeconds / 60);
     const seconds = Math.floor(paceInSeconds % 60);
@@ -657,5 +664,99 @@ Page({
     }
     wx.offLocationChange(this.handleLocationChangeFn);
     wx.stopLocationUpdate({ complete: () => {} });
+  },
+
+  // 打卡功能
+  checkIn() {
+    if (!this.data.allowCheckIn) {
+      wx.showToast({
+        title: `未满足${this.data.minValidDistance}公里打卡要求`,
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+
+    wx.showModal({
+      title: '确认打卡',
+      content: `本次跑步${this.data.totalDistance}公里，确认要打卡吗？`,
+      confirmText: '确认打卡',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          this.performCheckIn();
+        }
+      }
+    });
+  },
+
+  // 执行打卡操作
+  async performCheckIn() {
+    try {
+      wx.showLoading({ title: '正在打卡...' });
+
+      // 准备打卡数据 - 按照后端RunUploadRequest格式
+      const totalDistanceNum = parseFloat(this.data.totalDistance);
+      const paceValue = this.calculatePaceValue(count, totalDistanceNum);
+      const checkInData = {
+        date: new Date().toISOString().split('T')[0], // 当前日期 YYYY-MM-DD 格式
+        distance: totalDistanceNum,
+        duration: count,
+        pace: paceValue,
+        route: JSON.stringify(point),
+        valid: true, // 打卡记录默认为有效
+        checkIn: true // 标记为打卡记录
+      };
+
+      console.log('准备打卡数据:', checkInData);
+
+      // 调用后端保存接口
+      const res = await request({
+        url: '/api/run/save',
+        method: 'POST',
+        data: checkInData
+      });
+
+      wx.hideLoading();
+
+      if (res.success) {
+        wx.showToast({
+          title: '打卡成功！',
+          icon: 'success',
+          duration: 2000
+        });
+        
+        // 打卡成功后可以跳转到历史记录页面
+        setTimeout(() => {
+          wx.showModal({
+            title: '打卡完成',
+            content: '打卡成功！是否查看打卡历史？',
+            confirmText: '查看历史',
+            cancelText: '继续跑步',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                wx.navigateTo({
+                  url: '/pages/history/history'
+                });
+              }
+            }
+          });
+        }, 2000);
+      } else {
+        wx.showToast({
+          title: '打卡失败: ' + (res.message || '未知错误'),
+          icon: 'none',
+          duration: 3000
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('打卡失败:', error);
+      wx.showToast({
+        title: '打卡失败，请检查网络连接',
+        icon: 'none',
+        duration: 3000
+      });
+    }
   }
 });

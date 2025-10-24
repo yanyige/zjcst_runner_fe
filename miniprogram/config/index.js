@@ -4,7 +4,7 @@ const ENVIRONMENTS = {
     apiBaseUrl: 'http://121.40.207.7:8082'
   },
   production: {
-    apiBaseUrl: 'https://run.zjcst.cn:8082'
+    apiBaseUrl: 'http://121.40.207.7:8082'
   }
 };
 

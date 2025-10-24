@@ -27,18 +27,22 @@ Page({
         url: '/api/run/history',
         method: 'GET'
       });
-      
-      if (res.success) {
-        this.setData({
-          historyList: res.data || [],
-          isEmpty: (res.data || []).length === 0
-        });
-      } else {
-        wx.showToast({
-          title: res.message || '加载失败',
-          icon: 'none'
-        });
-      }
+
+      const records = res?.records || [];
+      const formatted = records.map((record) => ({
+        ...record,
+        createdAtText: this.formatDate(record.createdAt || record.date),
+        durationText: this.formatDuration(record.duration),
+        paceText: this.formatPaceFromMinutes(record.pace),
+        caloriesDisplay: record.calories != null ? record.calories : this.estimateCalories(record.distance),
+        routePoints: this.getRoutePointCount(record.route),
+        segmentCount: record.segmentCount || 0
+      }));
+
+      this.setData({
+        historyList: formatted,
+        isEmpty: formatted.length === 0
+      });
     } catch (error) {
       console.error('加载历史记录失败:', error);
       wx.showToast({
@@ -47,6 +51,37 @@ Page({
       });
     } finally {
       this.setData({ loading: false });
+    }
+  },
+
+  // 计算配速显示，后端 pace 为分钟/公里（BigDecimal）
+  formatPaceFromMinutes(pace) {
+    if (pace == null || pace <= 0) {
+      return '--';
+    }
+    const totalSeconds = Math.round(pace * 60);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}'${seconds.toString().padStart(2, '0')}"`;
+  },
+
+  estimateCalories(distance) {
+    if (!distance || distance <= 0) {
+      return '--';
+    }
+    return Math.round(55 * distance * 1.036);
+  },
+
+  getRoutePointCount(route) {
+    if (!route) {
+      return 0;
+    }
+    try {
+      const arr = JSON.parse(route);
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch (error) {
+      console.warn('解析轨迹点失败:', error);
+      return 0;
     }
   },
 
@@ -83,10 +118,39 @@ Page({
 
   // 查看详情
   viewDetail(e) {
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({
-      url: `/pages/runDetail/runDetail?id=${id}`
-    });
+    const record = this.findRecordById(e.currentTarget.dataset.id);
+    if (!record) {
+      wx.showToast({ title: '记录不存在', icon: 'none' });
+      return;
+    }
+    this.navigateToRouteDetail(record);
+  },
+  
+  previewRoute(e) {
+    const record = this.findRecordById(e.currentTarget.dataset.id);
+    if (!record) {
+      wx.showToast({ title: '记录不存在', icon: 'none' });
+      return;
+    }
+    this.navigateToRouteDetail(record);
+  },
+
+  findRecordById(id) {
+    if (id === undefined || id === null) return null;
+    const targetId = Number(id);
+    return this.data.historyList.find((item) => Number(item.id) === targetId) || null;
+  },
+
+  navigateToRouteDetail(record) {
+    try {
+      const payload = encodeURIComponent(JSON.stringify(record));
+      wx.navigateTo({
+        url: `/pages/historyDetail/historyDetail?record=${payload}`
+      });
+    } catch (error) {
+      console.error('跳转轨迹详情失败:', error);
+      wx.showToast({ title: '打开详情失败', icon: 'none' });
+    }
   },
 
   // 删除记录

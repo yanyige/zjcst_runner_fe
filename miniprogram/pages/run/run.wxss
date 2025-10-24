@@ -221,3 +221,38 @@
   border-left: 4rpx solid #1296db;
 }
 
+/* 打卡按钮样式 */
+.checkin-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  border: none;
+  border-radius: 12rpx;
+  padding: 20rpx 40rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-left: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 107, 0.3);
+  transition: all 0.3s ease;
+}
+
+.checkin-btn:disabled {
+  background: #cccccc;
+  color: #999999;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.checkin-btn:not(:disabled):active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 107, 0.4);
+}
+
+/* 控制按钮容器 */
+.section.control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20rpx;
+  flex-wrap: wrap;
+}
+

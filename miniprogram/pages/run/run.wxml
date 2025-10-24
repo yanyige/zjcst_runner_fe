@@ -152,6 +152,7 @@
 
     <view class="section control">
       <button class="primary-btn" bindtap="initData">重新开始</button>
+      <button class="checkin-btn" bindtap="checkIn" disabled="{{!allowCheckIn}}">打卡</button>
     </view>
   </view>
 

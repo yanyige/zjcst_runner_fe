@@ -161,6 +161,15 @@
   background: transparent;
 }
 
+.track-btn {
+  color: #1296db;
+  background: #e6f3ff;
+}
+
+.track-btn:active {
+  background: #d3e9ff;
+}
+
 .delete-btn {
   color: #ff4757;
   background: #ffe6e6;
@@ -168,4 +177,15 @@
 
 .delete-btn:active {
   background: #ffd6d6;
+}
+
+/* 打卡标识 */
+.checkin-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 107, 0.3);
 }

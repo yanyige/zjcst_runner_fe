@@ -16,8 +16,9 @@
     <block wx:for="{{historyList}}" wx:key="id" wx:for-index="index">
       <view class="history-item" bindtap="viewDetail" data-id="{{item.id}}">
         <view class="item-header">
-          <view class="date">{{formatDate(item.createdAt)}}</view>
-          <view class="duration">{{formatDuration(item.duration)}}</view>
+          <view class="date">{{item.createdAtText}}</view>
+          <view class="duration">{{item.durationText}}</view>
+          <view class="checkin-badge" wx:if="{{item.checkIn}}">打卡</view>
         </view>
         
         <view class="item-content">
@@ -29,11 +30,11 @@
           <view class="stats">
             <view class="stat-item">
               <text class="stat-label">平均配速</text>
-              <text class="stat-value">{{item.pace}}</text>
+              <text class="stat-value">{{item.paceText}}</text>
             </view>
             <view class="stat-item">
               <text class="stat-label">消耗热量</text>
-              <text class="stat-value">{{item.calories}}卡</text>
+              <text class="stat-value">{{item.caloriesDisplay}}卡</text>
             </view>
           </view>
         </view>
@@ -44,11 +45,15 @@
             <text class="segment-count" wx:if="{{item.segmentCount > 0}}">{{item.segmentCount}}段跑步</text>
           </view>
           <view class="actions">
+            <button class="action-btn track-btn"
+                    catchtap="previewRoute"
+                    data-id="{{item.id}}">
+              查看轨迹
+            </button>
             <button class="action-btn delete-btn" 
-                    bindtap="deleteRecord" 
+                    catchtap="deleteRecord" 
                     data-id="{{item.id}}" 
-                    data-index="{{index}}"
-                    catchtap="true">
+                    data-index="{{index}}">
               删除
             </button>
           </view>
