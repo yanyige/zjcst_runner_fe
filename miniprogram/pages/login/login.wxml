@@ -1,6 +1,6 @@
 <view class="container">
   <view class="hero-icon">🏃</view>
-  <view class="title">PopRun 校园跑步</view>
+  <view class="title">安防校园跑</view>
   <view class="subtitle">{{description}}</view>
   <button class="login-btn" type="primary" loading="{{loading}}" bindtap="handleLogin">
     微信登录
@@ -25,7 +25,8 @@
                value="{{ticketInput}}" bindinput="onTicketInput" />
       </view>
       <view class="form-tips">
-        <text>请先完成CAS认证，然后复制验证码到此处进行绑定</text>
+        <text>请先登录https://rz.zjcst.edu.cn/sso/login?service=https://run.zjcst.cn/api/auth/cas-callback
+        完成CAS认证，然后复制验证码到此处进行绑定</text>
       </view>
     </view>
     <view class="modal-footer">

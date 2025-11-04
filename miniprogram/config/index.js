@@ -1,10 +1,10 @@
 const ENVIRONMENTS = {
   development: {
     // 请将 192.168.x.x 替换为你的实际服务器IP地址
-    apiBaseUrl: 'http://121.40.207.7:8082'
+    apiBaseUrl: 'https://run.zjcst.cn'
   },
   production: {
-    apiBaseUrl: 'http://121.40.207.7:8082'
+    apiBaseUrl: 'https://run.zjcst.cn'
   }
 };
 

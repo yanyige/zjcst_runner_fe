@@ -1,6 +1,6 @@
 {
   "miniprogramRoot": "miniprogram/",
-  "projectname": "PopRun 校园跑步系统",
+  "projectname": "安防校园跑",
   "description": "校园跑步打卡与统计微信小程序",
   "appid": "touristappid",
   "compileType": "miniprogram",
